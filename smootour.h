@@ -12,7 +12,7 @@
 #include <vector>
 #include <opencv2/opencv.hpp>
 
-#define SMOO_DEFAULT_SMOOTH_AMOUNT 0.2
+#define SMOO_DEFAULT_SMOOTH_AMOUNT 0.55
 
 class Smootour {
 protected:
@@ -20,6 +20,7 @@ protected:
 
     cv::Mat implicit_image;
     //from which we get the implicit surface
+    int image_count;
     
 public:
     Smootour(int rows, int cols);
@@ -37,13 +38,24 @@ Smootour::Smootour(int rows, int cols) {
     smooth_amount = SMOO_DEFAULT_SMOOTH_AMOUNT;
     
     implicit_image = cv::Mat::zeros(rows, cols, CV_8UC1);
+    image_count = 0;
 }
 
 void Smootour::update(cv::Mat thresholded_image) {
     //smoothly add the thresholded_image to our implicit image
-    //this assumes our thresholded_image is 0 or 1.
+
+    //ensure our thresholded image is 0 or 1.
+    cv::Mat local_thresholded;
+    cv::threshold(thresholded_image, local_thresholded, 0.5, 1, cv::THRESH_TRUNC);
     
-    implicit_image = thresholded_image.clone();
+    if (image_count == 0) {
+        implicit_image = thresholded_image.clone();
+    } else {
+        //merge
+        cv::addWeighted(implicit_image, (1 - smooth_amount), thresholded_image, smooth_amount, 0, implicit_image);
+    }
+    
+    image_count++;
 }
 
 std::vector<std::vector<cv::Point> > Smootour::get_contours() {
