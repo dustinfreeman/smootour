@@ -84,26 +84,29 @@ int main(int argc, const char * argv[])
     while(running) {
         //display live webcam view in upper corner of image.
         frame = get_frame(cap);
-        frame.copyTo(windowFrame(frameROI));
         
         //threshold
         const float RANGE_FACTOR = 0.2;
         cv::Scalar low_match(match_colour[0]*(1-RANGE_FACTOR), match_colour[1]*(1-RANGE_FACTOR), match_colour[2]*(1-RANGE_FACTOR));
         cv::Scalar high_match(match_colour[0]*(1+RANGE_FACTOR), match_colour[1]*(1+RANGE_FACTOR), match_colour[2]*(1+RANGE_FACTOR));
         cv::inRange(frame, low_match, high_match, thresholded);
-        
         erode_and_dilate(thresholded);
+        
         cv::cvtColor(thresholded, thresholdedFrame, CV_GRAY2RGB);
-        thresholdedFrame.copyTo(windowFrame(tresholdedROI));
-        
-        
-        //display live thresholded image.
         
         
         //plain contours
-
+        std::vector<std::vector<cv::Point> > contours;
+        cv::findContours(thresholded, contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE );
+        
+        cv::Scalar contour_colour(255, 0, 0, 255);
+        cv::drawContours(frame, contours, -1, contour_colour, 2);
+        
+        //TODO can filter contour size based on length.
+        
         
         //smooth contours
+        
         
         
         //display implicit function image, threshold at 0.
@@ -111,7 +114,10 @@ int main(int argc, const char * argv[])
 
         
         
+        //display all
+        frame.copyTo(windowFrame(frameROI));
         
+        thresholdedFrame.copyTo(windowFrame(tresholdedROI));
         
         cv::imshow("smootour-test", windowFrame);
         
