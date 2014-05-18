@@ -93,19 +93,12 @@ int main(int argc, const char * argv[])
         cv::Scalar high_match(match_colour[0]*(1+RANGE_FACTOR), match_colour[1]*(1+RANGE_FACTOR), match_colour[2]*(1+RANGE_FACTOR));
         cv::inRange(frame, low_match, high_match, thresholded);
         erode_and_dilate(thresholded);
-        
         cv::cvtColor(thresholded, thresholdedFrame, CV_GRAY2RGB);
-        
         
         //plain contours
         std::vector<std::vector<cv::Point> > contours;
-        cv::findContours(thresholded, contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE );
-        
-        cv::Scalar contour_colour(255, 0, 0, 255);
-        cv::drawContours(frame, contours, -1, contour_colour, 1);
-        
-        //TODO can filter contour size based on length.
-        
+        cv::Mat thresholded_contours = thresholded.clone();
+        cv::findContours(thresholded_contours, contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE );
         
         //smooth contours
         std::vector<std::vector<cv::Point> > smooth_contours;
@@ -113,18 +106,25 @@ int main(int argc, const char * argv[])
         
         smooth_contours = frame_smootour.get_contours();
         
-        cv::Scalar smooth_contour_colour(0, 0, 255, 255);
-        cv::drawContours(frame, smooth_contours, -1, smooth_contour_colour, 2);
-        
-        //display implicit function image, threshold at 0.
+        //implicit surface image
         cv::Mat implicit_image = frame_smootour.get_implicit_image();
         cv::cvtColor(implicit_image, implicitFrame, CV_GRAY2RGB);
+        
+        //draw contours on frames
+        cv::Scalar contour_colour(255, 0, 0, 255);
+        cv::drawContours(frame, contours, -1, contour_colour, 1);
+        cv::drawContours(thresholdedFrame, contours, -1, contour_colour, 2);
+        
+        cv::Scalar smooth_contour_colour(0, 0, 255, 255);
+        cv::drawContours(frame, smooth_contours, -1, smooth_contour_colour, 1);
+        cv::drawContours(implicitFrame, smooth_contours, -1, smooth_contour_colour, 2);
+        
         
         //display all
         frame.copyTo(windowFrame(frameROI));
         
         thresholdedFrame.copyTo(windowFrame(tresholdedROI));
-        thresholdedFrame.copyTo(windowFrame(implicitROI));
+        implicitFrame.copyTo(windowFrame(implicitROI));
         
         
         cv::imshow("smootour-test", windowFrame);

@@ -19,7 +19,8 @@ protected:
     float smooth_amount;
 
     cv::Mat implicit_image;
-
+    //from which we get the implicit surface
+    
 public:
     Smootour(int rows, int cols);
     
@@ -41,12 +42,21 @@ Smootour::Smootour(int rows, int cols) {
 void Smootour::update(cv::Mat thresholded_image) {
     //smoothly add the thresholded_image to our implicit image
     //this assumes our thresholded_image is 0 or 1.
+    
+    implicit_image = thresholded_image.clone();
 }
 
 std::vector<std::vector<cv::Point> > Smootour::get_contours() {
     //do thresholding on implicit_image, return contours on either
     //side of 0.5
     
+    cv::Mat thresholded_implicit_image;
+    cv::threshold(implicit_image, thresholded_implicit_image, 0.5f, 1, cv::THRESH_BINARY);
+    
+    std::vector<std::vector<cv::Point> > smooth_contours;
+    cv::findContours(thresholded_implicit_image, smooth_contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE );
+    
+    return smooth_contours;
 }
 
 cv::Mat Smootour::get_implicit_image() {
