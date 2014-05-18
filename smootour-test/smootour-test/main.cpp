@@ -63,7 +63,7 @@ int main(int argc, const char * argv[])
     frame = get_frame(cap); //get first frame for sizing.
     std::cout << "frame size: " << frame.cols << "," << frame.rows << "\n";
     
-    cv::Scalar match_colour(200,0,0);
+    cv::Scalar match_colour(255,255,255);
     
     cv::Mat thresholded(frame.rows, frame.cols, CV_8UC1);
     
@@ -71,7 +71,10 @@ int main(int argc, const char * argv[])
     cv::namedWindow("smootour-test", CV_WINDOW_NORMAL);
     cv::Mat windowFrame(frame.rows*2, frame.cols*2, CV_8UC3);
     cv::Rect frameROI(0, 0, frame.cols, frame.rows);
-    cv::Mat displayThreshold = windowFrame(cv::Rect(frame.cols, 0, frame.cols, frame.rows));
+    
+    cv::Mat thresholdedFrame(frame.rows, frame.cols, CV_8UC3);
+    cv::Rect tresholdedROI(frame.cols, 0, frame.cols, frame.rows);
+    
     
     //initialize with correct row and column size
     //could also initialize with the first binary image.
@@ -82,7 +85,6 @@ int main(int argc, const char * argv[])
         //display live webcam view in upper corner of image.
         frame = get_frame(cap);
         frame.copyTo(windowFrame(frameROI));
-        //frame.copyTo(windowFrame);
         
         //threshold
         const float RANGE_FACTOR = 0.2;
@@ -91,7 +93,8 @@ int main(int argc, const char * argv[])
         cv::inRange(frame, low_match, high_match, thresholded);
         
         erode_and_dilate(thresholded);
-        thresholded.copyTo(displayThreshold);
+        cv::cvtColor(thresholded, thresholdedFrame, CV_GRAY2RGB);
+        thresholdedFrame.copyTo(windowFrame(tresholdedROI));
         
         
         //display live thresholded image.
