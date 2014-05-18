@@ -75,10 +75,12 @@ int main(int argc, const char * argv[])
     cv::Mat thresholdedFrame(frame.rows, frame.cols, CV_8UC3);
     cv::Rect tresholdedROI(frame.cols, 0, frame.cols, frame.rows);
     
+    cv::Mat implicitFrame(frame.rows, frame.cols, CV_8UC3);
+    cv::Rect implicitROI(0, frame.rows, frame.cols, frame.rows);
     
     //initialize with correct row and column size
     //could also initialize with the first binary image.
-    Smootour smootour(frame.rows, frame.cols);
+    Smootour frame_smootour(frame.rows, frame.cols);
     
     bool running = true;
     while(running) {
@@ -100,24 +102,30 @@ int main(int argc, const char * argv[])
         cv::findContours(thresholded, contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE );
         
         cv::Scalar contour_colour(255, 0, 0, 255);
-        cv::drawContours(frame, contours, -1, contour_colour, 2);
+        cv::drawContours(frame, contours, -1, contour_colour, 1);
         
         //TODO can filter contour size based on length.
         
         
         //smooth contours
+        std::vector<std::vector<cv::Point> > smooth_contours;
+        frame_smootour.update(thresholded);
         
+        smooth_contours = frame_smootour.get_contours();
         
+        cv::Scalar smooth_contour_colour(0, 0, 255, 255);
+        cv::drawContours(frame, smooth_contours, -1, smooth_contour_colour, 2);
         
         //display implicit function image, threshold at 0.
-        
-
-        
+        cv::Mat implicit_image = frame_smootour.get_implicit_image();
+        cv::cvtColor(implicit_image, implicitFrame, CV_GRAY2RGB);
         
         //display all
         frame.copyTo(windowFrame(frameROI));
         
         thresholdedFrame.copyTo(windowFrame(tresholdedROI));
+        thresholdedFrame.copyTo(windowFrame(implicitROI));
+        
         
         cv::imshow("smootour-test", windowFrame);
         
