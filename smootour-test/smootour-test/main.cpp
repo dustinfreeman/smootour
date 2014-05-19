@@ -69,7 +69,7 @@ int main(int argc, const char * argv[])
     
     //window display initialization
     cv::namedWindow("smootour-test", CV_WINDOW_NORMAL);
-    cv::Mat windowFrame(frame.rows*2, frame.cols*2, CV_8UC3);
+    cv::Mat windowFrame = cv::Mat::zeros(frame.rows*2, frame.cols*2, CV_8UC3);
     cv::Rect frameROI(0, 0, frame.cols, frame.rows);
     
     cv::Mat thresholdedFrame(frame.rows, frame.cols, CV_8UC3);
