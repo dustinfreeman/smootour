@@ -12,18 +12,18 @@
 #include <vector>
 #include <opencv2/opencv.hpp>
 
-#define SMOO_DEFAULT_SMOOTH_AMOUNT 0.6
+#define SMOO_FADE_RATE 0.8
 
 class Smootour {
 protected:
-    float smooth_amount;
+    float fade_rate;
 
     cv::Mat implicit_image;
     //from which we get the implicit surface
     int image_count;
     
 public:
-    Smootour(int rows, int cols, int _smooth_amount);
+    Smootour(int rows, int cols, float _fade_rate);
     
     void update(cv::Mat thresholded_image);
     
@@ -35,10 +35,10 @@ public:
 #endif
 
 Smootour::Smootour(int rows, int cols,
-    int _smooth_amount = SMOO_DEFAULT_SMOOTH_AMOUNT)
-    : smooth_amount(_smooth_amount) {
+    float _fade_rate = SMOO_FADE_RATE)
+    : fade_rate(_fade_rate) {
     
-    implicit_image = cv::Mat::zeros(rows, cols, CV_8UC1);
+    implicit_image = cv::Mat::zeros(rows, cols, CV_32FC1);
     image_count = 0;
 }
 
@@ -48,22 +48,12 @@ void Smootour::update(cv::Mat thresholded_image) {
     //ensure our thresholded image is 0 or 1.
     cv::Mat local_thresholded;
     cv::threshold(thresholded_image, local_thresholded, 0.5f, 1, cv::THRESH_BINARY);
+    cv::Mat local_thresholded_f;
+    local_thresholded.convertTo(local_thresholded_f, CV_32FC1);
     
-    if (image_count == 0) {
-        implicit_image = local_thresholded.clone();
-    } else {
-        //merge
-        //TODO need better than cv::addWeighted
-        //for each pixel: new & smoothed value
-        //if new == 0 && smoothed == 0 -> 0
-        //if new == 1 && smoothed == 1 -> 1
-        //if new == 1 && smoothed == 0 -> smooth_amount
-        //if new == 0 && smoothed == x -> x*(1-smooth_amount)
-        //Problem: if smooth_amount is small,
-        // values in implicit_image never get over our 0.5f threshold
-        
-        cv::addWeighted(implicit_image, (1 - smooth_amount), local_thresholded, smooth_amount, 0, implicit_image);
-    }
+    implicit_image *= fade_rate;
+    
+    cv::max(implicit_image, local_thresholded_f, implicit_image);
     
     image_count++;
 }
@@ -72,8 +62,11 @@ std::vector<std::vector<cv::Point> > Smootour::get_contours() {
     //do thresholding on implicit_image, return contours on either
     //side of 0.5
     
+    cv::Mat thresholded_implicit_image_f;
+    cv::threshold(implicit_image, thresholded_implicit_image_f, 0.5f, 1, cv::THRESH_BINARY);
+    
     cv::Mat thresholded_implicit_image;
-    cv::threshold(implicit_image, thresholded_implicit_image, 0.5f, 1, cv::THRESH_BINARY);
+    thresholded_implicit_image_f.convertTo(thresholded_implicit_image, CV_8UC1);
     
     std::vector<std::vector<cv::Point> > smooth_contours;
     cv::findContours(thresholded_implicit_image, smooth_contours, CV_RETR_TREE, CV_CHAIN_APPROX_NONE );
