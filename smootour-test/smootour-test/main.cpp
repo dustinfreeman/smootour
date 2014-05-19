@@ -107,7 +107,7 @@ int main(int argc, const char * argv[])
         smooth_contours = frame_smootour.get_contours();
         
         //implicit surface image
-        cv::Mat implicit_image = frame_smootour.get_implicit_image();
+        cv::Mat implicit_image = 255*frame_smootour.get_implicit_image();
         cv::cvtColor(implicit_image, implicitFrame, CV_GRAY2RGB);
         
         //draw contours on frames

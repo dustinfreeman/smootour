@@ -12,7 +12,7 @@
 #include <vector>
 #include <opencv2/opencv.hpp>
 
-#define SMOO_DEFAULT_SMOOTH_AMOUNT 0.55
+#define SMOO_DEFAULT_SMOOTH_AMOUNT 0.6
 
 class Smootour {
 protected:
@@ -23,7 +23,7 @@ protected:
     int image_count;
     
 public:
-    Smootour(int rows, int cols);
+    Smootour(int rows, int cols, int _smooth_amount);
     
     void update(cv::Mat thresholded_image);
     
@@ -34,8 +34,9 @@ public:
 
 #endif
 
-Smootour::Smootour(int rows, int cols) {
-    smooth_amount = SMOO_DEFAULT_SMOOTH_AMOUNT;
+Smootour::Smootour(int rows, int cols,
+    int _smooth_amount = SMOO_DEFAULT_SMOOTH_AMOUNT)
+    : smooth_amount(_smooth_amount) {
     
     implicit_image = cv::Mat::zeros(rows, cols, CV_8UC1);
     image_count = 0;
@@ -46,13 +47,22 @@ void Smootour::update(cv::Mat thresholded_image) {
 
     //ensure our thresholded image is 0 or 1.
     cv::Mat local_thresholded;
-    cv::threshold(thresholded_image, local_thresholded, 0.5, 1, cv::THRESH_TRUNC);
+    cv::threshold(thresholded_image, local_thresholded, 0.5f, 1, cv::THRESH_BINARY);
     
     if (image_count == 0) {
-        implicit_image = thresholded_image.clone();
+        implicit_image = local_thresholded.clone();
     } else {
         //merge
-        cv::addWeighted(implicit_image, (1 - smooth_amount), thresholded_image, smooth_amount, 0, implicit_image);
+        //TODO need better than cv::addWeighted
+        //for each pixel: new & smoothed value
+        //if new == 0 && smoothed == 0 -> 0
+        //if new == 1 && smoothed == 1 -> 1
+        //if new == 1 && smoothed == 0 -> smooth_amount
+        //if new == 0 && smoothed == x -> x*(1-smooth_amount)
+        //Problem: if smooth_amount is small,
+        // values in implicit_image never get over our 0.5f threshold
+        
+        cv::addWeighted(implicit_image, (1 - smooth_amount), local_thresholded, smooth_amount, 0, implicit_image);
     }
     
     image_count++;
