@@ -43,24 +43,25 @@ Smootour::Smootour(int rows, int cols,
 }
 
 void Smootour::update(cv::Mat thresholded_image) {
-    //smoothly add the thresholded_image to our implicit image
-
     //ensure our thresholded image is 0 or 1.
     cv::Mat local_thresholded;
     cv::threshold(thresholded_image, local_thresholded, 0.5f, 1, cv::THRESH_BINARY);
     cv::Mat local_thresholded_f;
     local_thresholded.convertTo(local_thresholded_f, CV_32FC1);
     
+    //areas of 0 in update images are faded over time
     implicit_image *= fade_rate;
     
+    //using max instead of a blend so that areas the contour
+    // does not respond sluggishly to movement.
     cv::max(implicit_image, local_thresholded_f, implicit_image);
     
     image_count++;
 }
 
 std::vector<std::vector<cv::Point> > Smootour::get_contours() {
-    //do thresholding on implicit_image, return contours on either
-    //side of 0.5
+    //do thresholding on implicit_image,
+    // return the contour of 0.5
     
     cv::Mat thresholded_implicit_image_f;
     cv::threshold(implicit_image, thresholded_implicit_image_f, 0.5f, 1, cv::THRESH_BINARY);

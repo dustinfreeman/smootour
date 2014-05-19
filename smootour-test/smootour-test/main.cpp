@@ -63,8 +63,6 @@ int main(int argc, const char * argv[])
     frame = get_frame(cap); //get first frame for sizing.
     std::cout << "frame size: " << frame.cols << "," << frame.rows << "\n";
     
-    cv::Scalar match_colour(255,255,255);
-    
     cv::Mat thresholded(frame.rows, frame.cols, CV_8UC1);
     
     //window display initialization
@@ -79,7 +77,7 @@ int main(int argc, const char * argv[])
     cv::Rect implicitROI(0, frame.rows, frame.cols, frame.rows);
     
     //initialize with correct row and column size
-    //could also initialize with the first binary image.
+    //TODO: could also initialize with the first binary image.
     Smootour frame_smootour(frame.rows, frame.cols);
     
     bool running = true;
@@ -88,6 +86,8 @@ int main(int argc, const char * argv[])
         frame = get_frame(cap);
         
         //threshold
+        // for testing, we're just using a match to white.
+        cv::Scalar match_colour(255,255,255);
         const float RANGE_FACTOR = 0.2;
         cv::Scalar low_match(match_colour[0]*(1-RANGE_FACTOR), match_colour[1]*(1-RANGE_FACTOR), match_colour[2]*(1-RANGE_FACTOR));
         cv::Scalar high_match(match_colour[0]*(1+RANGE_FACTOR), match_colour[1]*(1+RANGE_FACTOR), match_colour[2]*(1+RANGE_FACTOR));
@@ -103,7 +103,6 @@ int main(int argc, const char * argv[])
         //smooth contours
         std::vector<std::vector<cv::Point> > smooth_contours;
         frame_smootour.update(thresholded);
-        
         smooth_contours = frame_smootour.get_contours();
         
         //implicit surface image
@@ -126,9 +125,9 @@ int main(int argc, const char * argv[])
         thresholdedFrame.copyTo(windowFrame(tresholdedROI));
         implicitFrame.copyTo(windowFrame(implicitROI));
         
-        
         cv::imshow("smootour-test", windowFrame);
         
+        //input
         int key = cv::waitKey(30);
         if (key != -1) {
             switch(key) {
