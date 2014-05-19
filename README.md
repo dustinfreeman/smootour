@@ -3,7 +3,9 @@ smootour
 
 A temporally-smoothed contour class for OpenCV, with an approach based on implicit surfaces.
 
-YT("RKrylKFUceY", print = TRUE)
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=RKrylKFUceY
+" target="_blank"><img src="http://img.youtube.com/vi/RKrylKFUceY/0.jpg" 
+alt="Smootour!" width="240" height="180" border="10" /></a>
 
 This work inspired by my question on Stack Overflow:
 
