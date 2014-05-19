@@ -7,9 +7,7 @@ A temporally-smoothed contour class for OpenCV, with an approach based on implic
 " target="_blank"><img src="http://img.youtube.com/vi/RKrylKFUceY/0.jpg" 
 alt="Smootour on YouTube!" width="480" height="360" border="10" /></a>
 
-This work inspired by my question on Stack Overflow:
-
-http://stackoverflow.com/questions/23525856/simplifying-a-contour-to-a-fixed-length-to-smooth-over-several-frames
+Inspired by my question on Stack Overflow: http://stackoverflow.com/questions/23525856/simplifying-a-contour-to-a-fixed-length-to-smooth-over-several-frames
 
 Where [one poster](http://stackoverflow.com/a/23603696/2518451) observed that temporally-averaging points around a contour was not a useful approach. This should be a better one.
 
