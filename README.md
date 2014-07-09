@@ -11,19 +11,13 @@ Inspired by [my question on Stack Overflow] (http://stackoverflow.com/questions/
 
 How to use smootour:
 
-    //initial setup
-    cv::Mat frame;
-    frame = get_frame(cap); //get first frame for sizing.
-    Smootour smootour(frame.rows, frame.cols);
+    Smootour smootour(img_height, img_width);
     
     //in loop
-      //assume frame is updated
-      //create binary cv::Mat threshold from frame
+      //thresholded_image is a binary image
       
-      smootour.update(threshold);
-      
-      std::vector<std::vector<cv::Point> > smooth_contours;
-      smooth_contours = smootour.get_contours();
+      smootour.update(thresholded_image);
+      std::vector<std::vector<cv::Point> >smooth_contours = smootour.get_contours();
   
     
   
