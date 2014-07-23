@@ -23,6 +23,8 @@ protected:
     int image_count;
     
 public:
+	void init(int rows, int cols, float _fade_rate);
+
     Smootour(int rows, int cols, float _fade_rate);
     
     void update(cv::Mat thresholded_image);
@@ -34,12 +36,15 @@ public:
 
 #endif
 
-Smootour::Smootour(int rows, int cols,
-    float _fade_rate = SMOO_FADE_RATE)
-    : fade_rate(_fade_rate) {
-    
-    implicit_image = cv::Mat::zeros(rows, cols, CV_32FC1);
-    image_count = 0;
+void Smootour::init(int rows, int cols,
+	float _fade_rate = SMOO_FADE_RATE) {
+	implicit_image = cv::Mat::zeros(rows, cols, CV_32FC1);
+	image_count = 0;
+}
+
+Smootour::Smootour(int rows = 0, int cols = 0,
+    float _fade_rate = SMOO_FADE_RATE) {
+	init(rows, cols, _fade_rate);
 }
 
 void Smootour::update(cv::Mat thresholded_image) {
