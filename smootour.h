@@ -48,7 +48,8 @@ Smootour::Smootour(int rows = 0, int cols = 0,
 }
 
 void Smootour::update(cv::Mat thresholded_image) {
-    //ensure our thresholded image is 0 or 1.
+    //We expect our thresholded image to have values of either 0 or 1.
+
     cv::Mat local_thresholded;
     cv::threshold(thresholded_image, local_thresholded, 0.5f, 1, cv::THRESH_BINARY);
     cv::Mat local_thresholded_f;
